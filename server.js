@@ -4,7 +4,9 @@ const express = require("express");
 const dotenv = require('dotenv').config();
 const cookieParser = require('cookie-parser');
 
-const router = require("./routers/userRouter");
+const userRouter = require("./routers/userRouter");
+const blogRouter = require("./routers/blogRouter");
+const Blog = require('./models/blogModel');
 const { errorHandler } = require("./middleware/errorHandler");
 const connectDB = require("./config/cbConnection");
 const checkForAuthentiacationCookie = require('./middleware/authentication');
@@ -21,12 +23,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(checkForAuthentiacationCookie('token'));
 
-app.get('/', (req,res)=>{
+app.use(express.static(path.resolve(__dirname, 'public')));
+
+app.get('/', async(req,res)=>{
+    const allBlogs = await Blog.find();
     res.render('home',{
         user: req.user,
+        blogs: allBlogs
     });
 })
-app.use('/user', router);
+app.use('/user', userRouter);
+app.use('/blog', blogRouter);
 const start = async () => {
     try{
         await connectDB();
