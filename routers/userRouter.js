@@ -7,13 +7,19 @@ router.get('/signin', (req,res)=>{
     return res.render('signin');
 })
 
-router.post('/signin', (req,res)=>{
+router.post('/signin', async (req,res)=>{
     const {email,password} = req.body;
     console.log(req.body);
-    const user = User.matchPassword(email,password);
+    try{
+        const token = await User.matchPasswordAndGenerateToken(email,password);
+        return res.cookie('token',token).redirect('/');
+    }catch(err){
+        return res.render('signin',{
+            error: "Invalid Email or Password"
+        });
+    }
 
-    console.log("user:",user);
-    return res.redirect('/');
+    // console.log("user:",user);
 })
 
 router.get('/signup', (req,res)=>{
@@ -28,11 +34,15 @@ router.post('/signup', async(req,res)=>{
             email,
             password
         })
-        console.log(req.body);
     }
     catch(err){
         console.log(err);
     }
+    return res.redirect('/');
+})
+
+router.get('/logout' , (req,res)=>{
+    res.clearCookie('token');
     return res.redirect('/');
 })
 

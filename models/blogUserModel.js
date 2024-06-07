@@ -1,6 +1,8 @@
 const {createHmac , randomBytes} = require('crypto');
 const {Schema , model} = require('mongoose');
 
+const {createTokenforUser} = require('../services/authentication');
+
 const blogUserSchema = new Schema({
     fullName: {
         type: String,
@@ -54,7 +56,7 @@ blogUserSchema.pre('save', function(next){
 //.digest('hex') is used to convert the hashed password into hexadecimal format
 //this.salt and this.password are the fields in the schema
 
-blogUserSchema.static("matchPassword", async function(email, password){
+blogUserSchema.static("matchPasswordAndGenerateToken", async function(email, password){
     const user = await this.findOne({email});
     if(!user){
         throw new Error('User not found');
@@ -69,7 +71,9 @@ blogUserSchema.static("matchPassword", async function(email, password){
         throw new Error('Invalid Password');
     }
 
-    return {...user, password: undefined, slat: undefined}
+    // return {...user, password: undefined, slat: undefined}
+    const token = createTokenforUser(user);
+    return token;
 })
 
 const User = model('blogUser', blogUserSchema);
