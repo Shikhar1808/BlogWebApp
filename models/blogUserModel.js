@@ -22,7 +22,7 @@ const blogUserSchema = new Schema({
     },
     profilePicURL: {
         type: String,
-        default: './images/default.png'
+        default: '/images/default.png'
     },
     role: {
         type: String,

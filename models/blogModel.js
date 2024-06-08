@@ -1,4 +1,5 @@
 const {Schema, model} = require('mongoose');
+const User = require('./blogUserModel');
 
 const blogSchema = new Schema({
     title: {
@@ -14,8 +15,8 @@ const blogSchema = new Schema({
     },
     createdBy:{
         type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
+        ref: User,
+
     },
     },
     {

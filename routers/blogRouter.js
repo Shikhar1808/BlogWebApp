@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const Blog = require('./../models/blogModel');
+const Comment = require('./../models/commentModel');
 
 const router = Router();
 
@@ -39,5 +40,24 @@ router.post('/', upload.single('coverImage'), async(req, res) => {
     return res.redirect(`/blog/${blog._id}`);
 })
 
+router.get('/:id', async(req, res) => {
+    const { id } = req.params;
+    const blog = await Blog.findById(id).populate('createdBy');
+    const comments = await Comment.find({ blogId: id }).populate('createdBy');
+    return res.render('blog', {
+        user: req.user,
+        blog,
+        comments
+    });
+})
+
+router.post('/comment/:blogId', async(req, res) => {
+    await Comment.create({
+        content: req.body.content,
+        blogId: req.params.blogId,
+        createdBy: req.user._id
+    })
+    return res.redirect(`/blog/${req.params.blogId}`);
+})
 
 module.exports = router;
